@@ -60,3 +60,15 @@ Start-Process $dest
  3. "Интеллектуальное управление приложениями" (Smart App Control)
     выключать не обязательно и не рекомендуется: оно отключается
     навсегда (обратно только переустановкой Windows).
+
+================================================================
+ БОНУС: убрать предупреждение Prism про параметры памяти JVM
+ (сделай при ЗАКРЫТОМ Prism)
+================================================================
+$cfg=Get-ChildItem (Join-Path $env:APPDATA 'PrismLauncher\instances') -Recurse -Filter instance.cfg|Where-Object{$_.FullName -like '*PvP Clean*'}|Select-Object -First 1
+if($cfg){Copy-Item $cfg.FullName ($cfg.FullName+'.bak') -Force
+$txt=Get-Content $cfg.FullName -Raw
+$new=($txt -replace '-Xms\S+\s*','' -replace '-Xmx\S+\s*','')
+Set-Content -Path $cfg.FullName -Value $new -Encoding ASCII
+Write-Host "Готово: предупреждение больше не появится" -ForegroundColor Green
+}else{Write-Host "Инстанс не найден" -ForegroundColor Yellow}
