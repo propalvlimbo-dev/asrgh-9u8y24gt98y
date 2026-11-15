@@ -70,6 +70,9 @@ NVIDIA App -> Minecraft (javaw.exe):
     install.bat -PrismInstances "D:\PrismLauncher\instances"
 - Prism нет вообще, хочешь просто моды ->
     install.bat -ModsOnly -ModsPath "путь\к\instance\minecraft\mods"
+- Ошибка "Не удалось скачать метаданные для Fabric Loader" ->
+    закрой Prism и запусти fix-fabric.ps1 (правый клик -> PowerShell)
+    или в Prism: Изменить -> Версия -> удалить Fabric Loader -> Install Fabric
 - Какой-то мод "пропущен" -> ещё не портирован на 1.21.11,
     скачай вручную с modrinth.com
 - Подробности: README.md, modlist.md, settings.md
