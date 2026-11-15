@@ -1,0 +1,62 @@
+﻿================================================================
+ PvP Clean 1.21.11 — установка БЕЗ запуска файлов
+ (если Windows / «интеллектуальное управление» блокирует .bat)
+================================================================
+
+КАК ИСПОЛЬЗОВАТЬ:
+ 1. Win + X -> "Терминал" (или "Windows PowerShell")
+ 2. Выдели ВСЁ ниже (от строки $ErrorActionPreference до последней "}"),
+    скопируй и вставь в окно терминала правым кликом мыши.
+ 3. Enter. Ждёшь 1-3 минуты, в конце будет список OK/ERR.
+
+----------------------------------------------------------------
+---------- КОПИРОВАТЬ ОТСЮДА ----------
+$ErrorActionPreference='Continue'
+[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12
+$ua=@{'User-Agent'='pvp-clean/1.0'}
+$game='1.21.11'
+$root=Join-Path $env:APPDATA 'PrismLauncher\instances'
+$inst=Get-ChildItem $root -Directory -ErrorAction SilentlyContinue|Where-Object{$_.Name -like 'PvP Clean*'}|Select-Object -First 1
+if($inst){$dest=Join-Path $inst.FullName 'minecraft\mods'}else{$dest=Join-Path $root 'PvP Clean 1.21.11\minecraft\mods'}
+New-Item -ItemType Directory -Force -Path $dest|Out-Null
+Write-Host "Папка модов: $dest" -ForegroundColor Cyan
+$mods=@('fabric-api','sodium','lithium','ferrite-core','modernfix','krypton','immediatelyfast','entityculling','scalablelux','ixeris','tick-sync','sodium-extra','reeses-sodium-options','fullscreen-tweaks','hitcolorx','betterhurtcam','bactromod','shieldscale','modmenu','zoomify')
+$gv=[uri]::EscapeDataString('["'+$game+'"]')
+$ld=[uri]::EscapeDataString('["fabric"]')
+foreach($s in $mods){
+  try{
+    $r=@(Invoke-RestMethod "https://api.modrinth.com/v2/project/$s/version?game_versions=$gv&loaders=$ld&limit=1" -Headers $ua)
+    if($r.Count -eq 0){throw 'нет версии под 1.21.11'}
+    $v=$r[0]
+    $f=$v.files|Where-Object{$_.primary}|Select-Object -First 1
+    if(-not $f){$f=$v.files[0]}
+    $out=Join-Path $dest $f.filename
+    if(-not (Test-Path $out)){Invoke-WebRequest $f.url -OutFile $out -Headers $ua -UseBasicParsing}
+    Write-Host ("OK   {0} {1}" -f $s,$v.version_number) -ForegroundColor Green
+  }catch{
+    Write-Host ("ERR  {0} : {1}" -f $s,$_.Exception.Message) -ForegroundColor Yellow
+  }
+}
+Write-Host "`nГотово. Открываю папку модов..." -ForegroundColor Cyan
+Start-Process $dest
+---------- ДО СЮДА ----------
+
+----------------------------------------------------------------
+ЧТО ДЕЛАТЬ ПОТОМ:
+ 1. Открой Prism Launcher -> инстанс PvP Clean 1.21.11 -> "Запустить".
+ 2. В игре: Mods -> Mod Menu:
+      BactroMod: Brightness 15, Pumpkin OFF, Fire -100, Shield -30, Fog OFF
+      BetterHurtCam: Hurtcam OFF
+      Custom Shield Scale: Scale 0.5, Height -10
+      HitColor X: цвет вспышки
+ 3. Options -> Accessibility: Camera Bobbing 0%, Hand Bobbing 40%.
+ 4. NVIDIA: DSR/DLDSR 2.25x, Smoothness 15%, VSync off.
+
+----------------------------------------------------------------
+ЕСЛИ ХОЧЕШЬ ЗАПУСКАТЬ ФАЙЛЫ, А НЕ ВСТАВЛЯТЬ КОД:
+ 1. Правый клик по скачанному ZIP -> Свойства -> галочка
+    "Разблокировать" (Unblock) -> ОК.  ТОЛЬКО ПОСЛЕ ЭТОГО распаковывай.
+ 2. Тогда install.bat запустится без блокировки.
+ 3. "Интеллектуальное управление приложениями" (Smart App Control)
+    выключать не обязательно и не рекомендуется: оно отключается
+    навсегда (обратно только переустановкой Windows).
