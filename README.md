@@ -72,6 +72,7 @@ docs/
   08-checklist.md              — чек-листы: перед записью, перед экспортом, перед загрузкой
   09-shotyomka-priyomy.md      — приёмы съёмки/монтажа: камера, свет, ритм, звук, превью
   10-perenos-sborki.md         — как перенести сборку в другой лаунчер (Modrinth App, официальный, ATLauncher)
+  11-sglazhivanie-bystro.md    — «нет сглаживания / полосы вдали»: диагностика по шагам
 pack-clean/                    — ГОТОВАЯ СБОРКА: install.bat/ps1 + modlist + settings
 configs/
   minecraft/options-recommended.txt   — строки для options.txt (качество + PvP)
