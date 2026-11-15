@@ -156,40 +156,102 @@ function Save-RemoteFile {
 # ---------------------------------------------------------------------------
 # Skachivanie
 # ---------------------------------------------------------------------------
-Write-Step "Skachivanie modov ($($Mods.Count) sht.)"
+Write-Step "Skachivanie modov (s avtomaticheskoy podtyazhkoy zavisimostey)"
+
+$gvParam = [uri]::EscapeDataString('["' + $GameVersion + '"]')
+$ldParam = [uri]::EscapeDataString('["fabric"]')
+
+function Get-VersionBySlug([string]$Slug) {
+    $uri = "https://api.modrinth.com/v2/project/$Slug/version?game_versions=$gvParam&loaders=$ldParam&limit=1"
+    $r = @(Invoke-RestMethod -Uri $uri -Headers $UA -Method Get)
+    if ($r.Count -eq 0) { throw "net versii pod Minecraft $GameVersion" }
+    return $r[0]
+}
+
+function Get-VersionById([string]$VersionId) {
+    return Invoke-RestMethod -Uri "https://api.modrinth.com/v2/version/$VersionId" -Headers $UA -Method Get
+}
+
+function Get-VersionByProjectId([string]$ProjectId) {
+    $uri = "https://api.modrinth.com/v2/project/$ProjectId/version?game_versions=$gvParam&loaders=$ldParam&limit=1"
+    $r = @(Invoke-RestMethod -Uri $uri -Headers $UA -Method Get)
+    if ($r.Count -eq 0) { throw "net versii pod Minecraft $GameVersion" }
+    return $r[0]
+}
+
+function Get-PrimaryFile($Version) {
+    $f = $Version.files | Where-Object { $_.primary } | Select-Object -First 1
+    if (-not $f) { $f = $Version.files | Select-Object -First 1 }
+    if (-not $f) { throw 'u versii net faylov' }
+    return $f
+}
 
 $installed = New-Object System.Collections.ArrayList
 $failed    = New-Object System.Collections.ArrayList
+$seen      = @{}
 
+$queue = New-Object System.Collections.Queue
 foreach ($m in $Mods) {
-    $slug = $m.Slug
-    try {
-        $info = Get-ModVersion -Slug $slug
-        $dest = Join-Path $modsDir $info.File
-        if (Test-Path $dest) {
-            Write-Ok "$slug - uzhe est ($($info.File))"
-        } else {
-            Save-RemoteFile -Url $info.Url -Destination $dest
-            Write-Ok "$slug $($info.Version) - $($info.SizeMB) MB"
-        }
-        [void]$installed.Add([pscustomobject]@{ Slug = $slug; Version = $info.Version; File = $info.File; Why = $m.Why })
-    } catch {
-        [void]$failed.Add([pscustomobject]@{ Slug = $slug; Error = $_.Exception.Message })
-        Write-Note "$slug - propushchen: $($_.Exception.Message)"
-    }
+    $queue.Enqueue([pscustomobject]@{ Kind = 'slug'; Value = $m.Slug; Why = $m.Why })
+}
+if ($WithFlashback) {
+    $queue.Enqueue([pscustomobject]@{ Kind = 'slug'; Value = 'flashback'; Why = 'rendering klipov 4K/120' })
 }
 
-if ($WithFlashback) {
-    Write-Step 'Flashback (replei -> rendering klipov v 4K/120)'
+$guard = 0
+while ($queue.Count -gt 0) {
+    $guard++
+    if ($guard -gt 120) { Write-Note 'ostanovilsya: bolshe 120 komponentov (zashchita ot retsii)'; break }
+
+    $item = $queue.Dequeue()
+    $label = $item.Value
+
     try {
-        $info = Get-ModVersion -Slug 'flashback'
-        $dest = Join-Path $modsDir $info.File
-        if (-not (Test-Path $dest)) { Save-RemoteFile -Url $info.Url -Destination $dest }
-        Write-Ok "flashback $($info.Version) - $($info.SizeMB) MB"
-        [void]$installed.Add([pscustomobject]@{ Slug = 'flashback'; Version = $info.Version; File = $info.File; Why = 'rendering klipov 4K/120' })
+        switch ($item.Kind) {
+            'slug'      { $v = Get-VersionBySlug    -Slug $item.Value }
+            'version'   { $v = Get-VersionById      -VersionId $item.Value }
+            'project'   { $v = Get-VersionByProjectId -ProjectId $item.Value }
+            default     { throw "neizvestnyy tip: $($item.Kind)" }
+        }
+
+        $projectKey = $v.project_id
+        if ($projectKey -and $seen.ContainsKey($projectKey)) { continue }
+        if ($projectKey) { $seen[$projectKey] = $true }
+
+        $file = Get-PrimaryFile -Version $v
+        $dest = Join-Path $modsDir $file.filename
+        $sizeMb = [math]::Round($file.size / 1048576, 1)
+
+        if (Test-Path $dest) {
+            Write-Ok ("{0} - uzhe est" -f $file.filename)
+        } else {
+            for ($attempt = 1; $attempt -le 3; $attempt++) {
+                try { Invoke-WebRequest -Uri $file.url -OutFile $dest -Headers $UA -UseBasicParsing; break }
+                catch { if ($attempt -eq 3) { throw }; Start-Sleep -Milliseconds 900 }
+            }
+            Write-Ok ("{0} {1} - {2} MB" -f $item.Value, $v.version_number, $sizeMb)
+        }
+
+        [void]$installed.Add([pscustomobject]@{
+            Slug    = $item.Value
+            Name    = $v.name
+            Version = $v.version_number
+            File    = $file.filename
+            Why     = $item.Why
+        })
+
+        foreach ($dep in @($v.dependencies)) {
+            if (-not $dep) { continue }
+            if ($dep.dependency_type -ne 'required') { continue }
+            if ($dep.version_id) {
+                $queue.Enqueue([pscustomobject]@{ Kind = 'version'; Value = $dep.version_id; Why = 'zavisimost' })
+            } elseif ($dep.project_id) {
+                $queue.Enqueue([pscustomobject]@{ Kind = 'project'; Value = $dep.project_id; Why = 'zavisimost' })
+            }
+        }
     } catch {
-        [void]$failed.Add([pscustomobject]@{ Slug = 'flashback'; Error = $_.Exception.Message })
-        Write-Note "flashback - propushchen: $($_.Exception.Message)"
+        [void]$failed.Add([pscustomobject]@{ Slug = $label; Error = $_.Exception.Message })
+        Write-Note ("{0} - propushchen: {1}" -f $label, $_.Exception.Message)
     }
 }
 
