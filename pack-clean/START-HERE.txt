@@ -1,0 +1,64 @@
+﻿========================================================
+  PvP Clean 1.21.11 — ЧТО ДЕЛАТЬ (3 шага)
+========================================================
+
+ШАГ 1. Поставь Prism Launcher (если ещё нет):
+        https://prismlauncher.org/download/
+        Скачай Windows-установщик, поставь, ЗАКРОЙ Prism.
+
+ШАГ 2. В этой папке (pack-clean) запусти двойным кликом:
+        install.bat
+        Откроется чёрное окно — подожди 1-3 минуты,
+        пока скачаются 20 модов. В конце будет "Gotovo".
+
+        Если окно мигнуло и закрылось:
+        правый клик по install.bat -> "Запустить от имени администратора"
+
+ШАГ 3. Открой Prism Launcher.
+        В списке слева появится инстанс: PvP Clean 1.21.11
+        Нажми Launch. Первый запуск скачает сам Minecraft (5-10 мин).
+
+--------------------------------------------------------
+ПОСЛЕ ЗАПУСКА ИГРЫ (2 минуты, обязательно):
+--------------------------------------------------------
+1) Mods -> Mod Menu -> BactroMod:
+      Brightness Boost = 15
+      Pumpkin Blur     = OFF
+      Fire Offset      = -100
+      Shield Offset    = -30
+      Fog              = OFF
+
+2) Mod Menu -> BetterHurtCam:  Hurtcam Enabled = OFF
+3) Mod Menu -> Custom Shield Scale:  Scale = 0.5,  Height = -10
+4) Mod Menu -> HitColor X:  выбери цвет вспышки (белый или красный)
+
+5) Options -> Accessibility:
+      Camera Bobbing = 0%
+      Hand Bobbing   = 40%
+
+6) Video Settings (Sodium Extra):
+      Mipmap Levels = 4x
+      Anisotropic Filtering = 16x
+
+--------------------------------------------------------
+ИДЕАЛЬНАЯ КАРТИНКА (без шейдеров):
+--------------------------------------------------------
+NVIDIA App -> Minecraft (javaw.exe):
+      DSR / DLDSR      = 2.25x
+      DSR Smoothness   = 15%
+      FXAA             = Off
+      VSync            = Off
+      Power management = Prefer maximum performance
+
+Проверка: в игре F3 — должно быть 3840x2160 (или 3413x1920).
+
+--------------------------------------------------------
+ЕСЛИ ЧТО-ТО НЕ ТАК:
+--------------------------------------------------------
+- Инстанс не появился: Prism в другой папке ->
+    install.bat -PrismInstances "D:\PrismLauncher\instances"
+- Prism нет вообще, хочешь просто моды ->
+    install.bat -ModsOnly -ModsPath "путь\к\instance\minecraft\mods"
+- Какой-то мод "пропущен" -> ещё не портирован на 1.21.11,
+    скачай вручную с modrinth.com
+- Подробности: README.md, modlist.md, settings.md
