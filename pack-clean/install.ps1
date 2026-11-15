@@ -225,7 +225,8 @@ if ($instanceRoot) {
     $mmcPack = [ordered]@{ formatVersion = 1; components = @($components) }
     $mmcPack | ConvertTo-Json -Depth 6 | Set-Content -Path (Join-Path $instanceRoot 'mmc-pack.json') -Encoding ASCII
 
-    $jvm = '-Xms4G -Xmx10G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:InitiatingHeapOccupancyPercent=15 -XX:SurvivorRatio=32 -XX:MaxTenuringThreshold=1'
+    # -Xms/-Xmx NE ukazyvaem: pamyat zadayut MinMemAlloc/MaxMemAlloc, inache Prism rugaetsya predprezhdeniem
+    $jvm = '-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:InitiatingHeapOccupancyPercent=15 -XX:SurvivorRatio=32 -XX:MaxTenuringThreshold=1'
 
     $instanceCfg = @(
         'InstanceType=OneSix'
