@@ -73,6 +73,7 @@ docs/
   09-shotyomka-priyomy.md      — приёмы съёмки/монтажа: камера, свет, ритм, звук, превью
   10-perenos-sborki.md         — как перенести сборку в другой лаунчер (Modrinth App, официальный, ATLauncher)
   11-sglazhivanie-bystro.md    — «нет сглаживания / полосы вдали»: диагностика по шагам
+  12-licenziya-i-launchery.md  — лицензия, Game Pass, Lunar Client и почему лаунчер не даёт fps
 pack-clean/                    — ГОТОВАЯ СБОРКА: install.bat/ps1 + modlist + settings
 configs/
   minecraft/options-recommended.txt   — строки для options.txt (качество + PvP)
