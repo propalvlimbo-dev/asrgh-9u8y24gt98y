@@ -1,0 +1,63 @@
+# Рекомендуемые строки для options.txt (Minecraft 1.21.11)
+#
+# ВАЖНО: не заменяй свой options.txt целиком — скопируй нужные строки
+# и вставь в свой файл (или поменяй значения в игре руками, если проще).
+# Файл лежит тут: %APPDATA%\.minecraft\options.txt
+# (в Prism/Modrinth App — внутри папки инстанса)
+#
+# Формат options.txt: key:value, по одной на строку. Комментариев игра не понимает,
+# поэтому строки ниже без "#" — это и есть готовые значения.
+
+# --- Картинка (профиль ЗАПИСЬ) ---
+graphicsMode:1
+ao:true
+entityShadows:true
+mipmapLevels:4
+biomeBlendRadius:2
+renderClouds:"true"
+particles:0
+renderDistance:14
+simulationDistance:8
+guiScale:3
+gamma:1.0
+fov:0.35
+screenEffectScale:1.0
+fovEffectScale:0.0
+
+# --- Производительность / плавность ---
+enableVsync:false
+maxFps:240
+useNativeTransport:true
+syncChunkWrites:false
+
+# --- Интерфейс ---
+narrator:0
+tutorialStep:none
+skipMultiplayerWarning:true
+joinedFirstServer:true
+showSubtitles:false
+autoJump:false
+toggleCrouch:false
+toggleSprint:true
+
+# --- Аудио ---
+soundCategory_master:1.0
+soundCategory_music:0.0
+
+# ============================================================
+# Пояснения:
+#   graphicsMode: 0=Fast, 1=Fancy, 2=Fabulous  (Fabulous на запись не нужен)
+#   particles:    0=All, 1=Decreased, 2=Minimal
+#   mipmapLevels: ставь 4 (максимум) — убирает муар на дальних текстурах
+#   biomeBlendRadius: 2 = 5x5 (максимум), плавные переходы биомов
+#   fov: 0.35 ≈ 84°, 0.45 ≈ 90° (0.0 = 70°, 1.0 = 110°)
+#   guiScale: 3 для 1440p, 3–4 для 4K
+#   fovEffectScale:0.0 — убирает «растягивание» FOV при спринте (важно для кадров)
+#   maxFps: 240 — ровный frame time важнее максимума
+#
+# Профиль PVP отличается так:
+#   renderDistance:10, simulationDistance:6, particles:1, renderClouds:"false",
+#   entityShadows:false, maxFps:300, guiScale:2
+#
+# Настройки Sodium/AF/mipmap меняй в Sodium Extra → Quality,
+# они НЕ хранятся в options.txt.

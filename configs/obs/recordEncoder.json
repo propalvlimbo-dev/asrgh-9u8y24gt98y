@@ -1,0 +1,17 @@
+{
+  "encoder": "obs_nvenc_av1_tex",
+  "rate_control": "CQP",
+  "cqp": 18,
+  "preset2": "p7",
+  "tune": "hq",
+  "multipass": "fullres",
+  "lookahead": true,
+  "psycho_aq": true,
+  "bf": 3,
+  "split_encode_mode": "auto",
+  "repeat_headers": false,
+  "gpu": 0,
+  "keyint_sec": 2,
+  "bitrate": 200000,
+  "max_bitrate": 0
+}
