@@ -61,16 +61,21 @@ $roots = @(
 )
 
 function Get-BySlug([string]$slug) {
-    $u = "https://api.modrinth.com/v2/project/$slug/version?game_versions=$gv&loaders=$ld&limit=1"
+    # berem do 20 versiy i predpochitaem stabilnyy reliz (bez beta/alpha)
+    $u = "https://api.modrinth.com/v2/project/$slug/version?game_versions=$gv&loaders=$ld&limit=20"
     $r = @(Invoke-RestMethod -Uri $u -Headers $ua -Method Get)
     if ($r.Count -eq 0) { throw "net versii pod $game" }
+    $stable = $r | Where-Object { $_.version_type -eq 'release' } | Select-Object -First 1
+    if ($stable) { return $stable }
     return $r[0]
 }
 function Get-ById([string]$id) { return Invoke-RestMethod -Uri "https://api.modrinth.com/v2/version/$id" -Headers $ua -Method Get }
 function Get-ByProject([string]$pid) {
-    $u = "https://api.modrinth.com/v2/project/$pid/version?game_versions=$gv&loaders=$ld&limit=1"
+    $u = "https://api.modrinth.com/v2/project/$pid/version?game_versions=$gv&loaders=$ld&limit=20"
     $r = @(Invoke-RestMethod -Uri $u -Headers $ua -Method Get)
     if ($r.Count -eq 0) { throw "net versii pod $game" }
+    $stable = $r | Where-Object { $_.version_type -eq 'release' } | Select-Object -First 1
+    if ($stable) { return $stable }
     return $r[0]
 }
 function Get-File($v) {
