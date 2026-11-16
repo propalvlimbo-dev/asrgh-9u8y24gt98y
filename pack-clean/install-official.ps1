@@ -80,6 +80,15 @@ function Get-File($v) {
     return $f
 }
 
+# --- chistka musora: bibliotechnye jar-fayly, kotorye ne dolzhny lezhat v mods ---
+$junk = @('joml*.jar','*sources*.jar','*-dev.jar')
+foreach ($j in $junk) {
+    Get-ChildItem $modsDir -Filter $j -ErrorAction SilentlyContinue | ForEach-Object {
+        Remove-Item $_.FullName -Force
+        Write-Host ("  udalil musor: {0}" -f $_.Name) -ForegroundColor DarkYellow
+    }
+}
+
 Write-Host "============================================================" -ForegroundColor White
 Write-Host "  PvP Clean $game -> ofitsialnyy launcher" -ForegroundColor White
 Write-Host "  Papka mods: $modsDir" -ForegroundColor Cyan
@@ -158,6 +167,18 @@ Set-Content -Path $listPath -Value ($lines -join "`r`n") -Encoding UTF8
 Write-Host ''
 Write-Host ("Dobavleno: {0}, oshibok: {1}" -f $added.Count, $errors.Count) -ForegroundColor Green
 Write-Host ("Spisok: {0}" -f $listPath) -ForegroundColor DarkGray
+# --- proverka obyazatelnyh bibliotek ---
+$mustHave = @('ukulib','yacl','fabric-language-kotlin')
+Write-Host ''
+Write-Host 'Proverka bibliotek:' -ForegroundColor Cyan
+$jars = @(Get-ChildItem $modsDir -Filter *.jar -ErrorAction SilentlyContinue)
+foreach ($m in $mustHave) {
+    $found = $jars | Where-Object { $_.Name -like ($m + '*') }
+    if ($found) { Write-Host ("  OK  {0}" -f $found[0].Name) -ForegroundColor Green }
+    else { Write-Host ("  NET {0} - zapusti skript povtorno ili skachay vruchnuyu s modrinth.com" -f $m) -ForegroundColor Red }
+}
+Write-Host ("  Vsego .jar v mods: {0}" -f $jars.Count) -ForegroundColor DarkGray
+
 Write-Host ''
 Write-Host 'Dalshe: ofitsialnyy launcher -> profil fabric-loader-1.21.11 -> Igra.' -ForegroundColor White
 Write-Host 'Esli profilya net: fabricmc.net/use/installer -> 1.21.11 -> Install.' -ForegroundColor White
